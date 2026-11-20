@@ -1,0 +1,17 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "bmitech": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "BMITECH",
+      "options": {
+        "baseURL": "https://<BASE_URL>/v1"
+      },
+      "models": {
+        "<MODEL>": {
+          "name": "<MODEL>"
+        }
+      }
+    }
+  }
+}
