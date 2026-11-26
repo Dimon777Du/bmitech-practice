@@ -6,13 +6,13 @@ calculate_metrics.py — метрики качества NUT-01 по JSON-дан
 ----------
 1. food_catalog.json — JSON-массив блюд. Эталон берётся из:
        total.kcal, total.protein_g, total.fat_g, total.carbs_g
-   Поле ingredients используется только для справочного количества
-   эталонных ингредиентов.
+   Поле ingredients используется для Match % по ингредиентам:
+       ingredients[].name — эталонный состав.
 2. Все *.json из папки прогона (по умолчанию out/runs/DeepSeek_v1/).
-   Предсказание берётся из верхнеуровневых полей:
+   Нутриенты берутся из верхнеуровневых полей:
        kcal, protein, fat, carbs
-   Поле components используется только для справочного количества
-   компонентов.
+   Поле components используется для Match % по ингредиентам:
+       components[].name — распознанный состав.
 
 Что считает
 -----------
@@ -31,6 +31,23 @@ Match % — доля пар «блюдо × нутриент», для кото�
 Если для блюда нет JSON-файла или в предсказании отсутствует/некорректно
 хотя бы одно из полей kcal/protein/fat/carbs, блюдо считается проваленным:
 MAE_i = 100 %, все четыре hit = 0 (правило из spec.md).
+
+Match % по ингредиентам (поле match_ingredients) считается отдельно:
+    эталон — food_catalog.json -> ingredients[].name;
+    предсказание — run JSON -> components[].name.
+Это метрика распознавания состава, поэтому вес компонента в неё не входит:
+    recall_i = matched_reference / reference_total * 100
+    match_ingredients.match_percent = recall по всем блюдам (micro)
+Дополнительно считаются precision, F1, macro-средние и детали по блюдам.
+Названия нормализуются: нижний регистр, ё -> е, пунктуация, стоп-слова,
+простой стеммер и словарь синонимов; содержимое скобок используется как
+уточнение, но не может дать совпадение само по себе, если головные слова
+обеих сторон разные. Матчинг один-к-одному, оптимальный по числу пар.
+
+Дополнительно в match_ingredients.weight_constrained считается
+Component Match % из spec.md 5.3 — F1 с проверкой относительной ошибки веса
+<= 20 % у совпавших по названию компонентов. Это отдельная метрика, она не
+подменяет основной Match % по ингредиентам.
 
 Результат сохраняется в out/metrics.json. CSV не используется.
 
@@ -53,10 +70,13 @@ import argparse
 import json
 import math
 import platform
+import re
 import statistics
 import sys
+import unicodedata
 from dataclasses import dataclass
 from datetime import datetime
+from functools import lru_cache
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
@@ -74,6 +94,7 @@ DEFAULT_OUT_PATH = BASE_DIR / "out" / "metrics.json"
 DEFAULT_MATCH_TOLERANCE = 20.0  # %
 DEFAULT_MAE_THRESHOLD = 15.0    # %
 DEFAULT_MATCH_THRESHOLD = 80.0  # %
+DEFAULT_INGREDIENT_WEIGHT_TOLERANCE = 20.0  # %
 
 
 @dataclass(frozen=True)
@@ -96,6 +117,14 @@ NUTRIENTS: Tuple[NutrientSpec, ...] = (
 )
 
 
+@dataclass(frozen=True)
+class Ingredient:
+    """Ингредиент эталона или компонент предсказания."""
+
+    name: str
+    weight_g: Optional[float]
+
+
 @dataclass
 class CatalogDish:
     """Одно блюдо из food_catalog.json."""
@@ -104,7 +133,11 @@ class CatalogDish:
     key: str
     name: str
     total: Dict[str, float]
-    n_ingredients: int
+    ingredients: List[Ingredient]
+
+    @property
+    def n_ingredients(self) -> int:
+        return len(self.ingredients)
 
 
 @dataclass
@@ -186,6 +219,533 @@ def mean(values: Iterable[float]) -> Optional[float]:
 
 
 # ---------------------------------------------------------------------------
+# Сопоставление ингредиентов
+# ---------------------------------------------------------------------------
+
+# Служебные слова и способы приготовления, которые не помогают отличить
+# один ингредиент от другого.
+INGREDIENT_NOISE = {
+    "свежий", "свежая", "свежее", "свежие", "fresh",
+    "вареный", "варёный", "вареная", "варёная", "вареное", "варёное",
+    "варенные", "варёные", "boiled",
+    "жареный", "жареная", "жареное", "жареные", "жареного", "fried",
+    "запеченный", "запечённый", "запеченная", "запечённая",
+    "запеченное", "запечённое", "запеченные", "запечённые", "baked",
+    "сырой", "сырая", "сырое", "сырые", "raw",
+    "молотый", "молотая", "молотое", "молотые", "ground",
+    "рубленый", "рубленая", "рубленое", "рубленые", "chopped",
+    "резаный", "резаная", "резаное", "резаные", "нарезки", "нарезка",
+    "крупный", "крупная", "крупное", "крупные",
+    "мелкий", "мелкая", "мелкое", "мелкие",
+    "готовый", "готовая", "готовое", "готовые", "готового", "готовой",
+    "по", "вкусу", "to", "taste", "в", "и", "с", "на", "из", "для",
+    "или", "основе", "шт", "при", "фритюре", "жарке", "обжарке",
+    "питьевая", "питьевой", "рафинированное", "рафинированный",
+    "дезодорированное", "дезодорированный",
+    "впитанное", "впитанный", "впитанная",
+    "предположительно", "примерно", "около", "порция", "порции",
+    "консервированные", "консервированный", "свежемолотый", "свежемолотая",
+    "йодированная", "йодированный", "основа", "основе", "основой",
+    "корж", "бортик", "ломтик", "ломтики", "кусочки", "кусочками",
+    "кусочков", "листья", "лист", "микс", "тертый", "тёртый",
+    "кубиками", "поливка", "заправка", "суши", "гриль", "гриля",
+    "добавки", "добавка",
+    "2", "3", "9", "30", "см",
+}
+
+# Общие слова: сами по себе не доказывают совпадение, если у обеих сторон
+# есть более конкретные слова.
+INGREDIENT_WEAK = {"мясн", "рыб", "соус", "сыр", "масл", "овощ"}
+
+# Головные слова, которые считаются родовыми. Если головное слово родовое,
+# совпадение по уточнению в скобках допустимо.
+INGREDIENT_GENERIC_HEADS = INGREDIENT_WEAK | {
+    "спец", "приправ", "соль", "зелен", "бифштекс", "котлет", "дёнер",
+}
+
+# Каноническое слово -> варианты написания. Один вариант может входить
+# в несколько групп (например, «моцарелла» -> и «моцарелл», и «сыр»).
+INGREDIENT_SYNONYM_GROUPS = {
+    "томат": (
+        "помидор", "помидоры", "помидора", "помидоров", "помидорами",
+        "томат", "томаты", "томатов", "томатный", "томатная", "томатное",
+        "томатные",
+    ),
+    "куриц": (
+        "курица", "курицы", "курицу", "курицей", "куриный", "куриная",
+        "куриное", "куриные", "куриного", "куриной", "цыпленок", "цыплёнок",
+        "цыпленка", "цыплёнка", "мясн",
+    ),
+    "хлеб": (
+        "хлеб", "хлеба", "хлебный", "хлебная", "хлебное", "хлебные",
+        "булочка", "булочки", "булочку", "булочек", "лаваш", "лаваша",
+        "лавашом", "лепешка", "лепёшка", "лепешки", "лепёшки", "тортилья",
+        "тортильи", "тортилью", "панировка", "панировки", "панировочные",
+        "панировочный", "сухари", "сухарики", "сухарь", "сухаря",
+    ),
+    "сыр": (
+        "сыр", "сыра", "сыром", "сыры", "сырный", "сырная", "сырное",
+        "сырные", "чеддер", "чеддера", "моцарелла", "моцареллы",
+        "моцареллу", "пармезан", "пармезана", "фета", "феты", "фету",
+        "сулугуни", "имеретинский", "имеретинского", "эмменталь",
+        "эмменталя", "гауда", "гауды",
+    ),
+    "моцарелл": ("моцарелла", "моцареллы", "моцареллу"),
+    "пармезан": ("пармезан", "пармезана"),
+    "фет": ("фета", "феты", "фету"),
+    "сулугуни": ("сулугуни",),
+    "имеретинск": ("имеретинский", "имеретинского"),
+    "эмменталь": ("эмменталь", "эмменталя"),
+    "гауда": ("гауда", "гауды"),
+    "чеддер": ("чеддер", "чеддера"),
+    "соус": ("соус", "соуса", "соусом", "соусы", "соусный", "соусная"),
+    "кетчуп": ("кетчуп", "кетчупа"),
+    "альфредо": ("альфредо",),
+    "терияки": ("терияки",),
+    "тахини": ("тахини",),
+    "горчичн": ("горчичный", "горчичная"),
+    "чесночн": ("чесночный", "чесночная"),
+    "барбекю": ("барбекю",),
+    "цезар": ("цезарь",),
+    "салатн": ("салатный", "салатная"),
+    "сливочн": ("сливочное", "сливочный", "сливочная", "сливки"),
+    "масл": (
+        "масло", "масла", "маслом", "масел", "масляный", "масляная",
+        "подсолнечное", "подсолнечный", "подсолнечная", "растительное",
+        "растительный", "растительная", "оливковое", "оливковый",
+        "оливковая", "сливочное", "сливочный", "сливочная",
+    ),
+    "подсолнечн": ("подсолнечное", "подсолнечный", "подсолнечная"),
+    "растительн": ("растительное", "растительный", "растительная"),
+    "оливков": ("оливковое", "оливковый", "оливковая"),
+    "картофел": (
+        "картофель", "картофеля", "картошка", "картошки", "картошку",
+        "картофельный", "картофельные",
+    ),
+    "яйц": (
+        "яйцо", "яйца", "яиц", "яйцом", "яичный", "яичная", "яичное",
+        "яичные", "желток", "желтки", "желтков", "желтка",
+    ),
+    "желток": ("желток", "желтки", "желтков", "желтка"),
+    "тест": ("тесто", "теста", "тестом", "тесте", "тестовый"),
+    "спец": (
+        "специи", "специя", "специй", "специями", "приправа", "приправы",
+        "приправой", "соль", "соли", "солю",
+    ),
+    "приправ": ("приправа", "приправы", "приправой"),
+    "соль": ("соль", "соли", "солю", "соленый", "соленая"),
+    "зелен": (
+        "зелень", "зелени", "зеленью", "укроп", "укропа", "кинза",
+        "кинзы", "петрушка", "петрушки", "базилик", "базилика",
+    ),
+    "укроп": ("укроп", "укропа"),
+    "кинз": ("кинза", "кинзы"),
+    "петрушк": ("петрушка", "петрушки"),
+    "базилик": ("базилик", "базилика"),
+    "овощ": ("овощи", "овощ", "овощами", "овощей", "овощной", "овощная"),
+    "морков": ("морковь", "моркови", "морковью", "морковка", "морковки"),
+    "свекл": ("свекла", "свёкла", "свеклы", "свёклы", "свеклу"),
+    "капуст": ("капуста", "капусты", "капусту", "капустой"),
+    "лук": ("лук", "лука", "луком", "луке", "луковый", "луковая"),
+    "чеснок": ("чеснок", "чеснока", "чесноком"),
+    "огурец": (
+        "огурец", "огурца", "огурцы", "огурцов", "огурчики", "огурчик",
+    ),
+    "болгарск": ("болгарский", "болгарская", "болгарское", "болгарские"),
+    "сладк": ("сладкий", "сладкая", "сладкое", "сладкие"),
+    "рис": (
+        "рис", "риса", "рисом", "рисовый", "рисовая", "рисовое",
+        "рисовые",
+    ),
+    "говядин": (
+        "говядина", "говядины", "говядиной", "говяжий", "говяжья",
+        "говяжье", "мясн",
+    ),
+    "свинин": (
+        "свинина", "свинины", "свининой", "свиной", "свиная", "свиное",
+        "мясн",
+    ),
+    "бекон": (
+        "бекон", "бекона", "беконом", "грудинка", "грудинки", "гуанчале",
+        "мясн",
+    ),
+    "грудинк": ("грудинка", "грудинки"),
+    "гуанчале": ("гуанчале",),
+    "ветчин": ("ветчина", "ветчины", "ветчиной", "мясн"),
+    "салями": ("салями", "мясн"),
+    "пепперони": ("пепперони", "мясн"),
+    "фарш": ("фарш", "фарша", "фаршем", "мясн"),
+    "котлет": (
+        "котлета", "котлеты", "котлету", "бифштекс", "бифштекса", "мясн",
+    ),
+    "бифштекс": ("бифштекс", "бифштекса", "мясн"),
+    "лосос": (
+        "лосось", "лосося", "лососем", "семга", "сёмга", "семги", "сёмги",
+        "рыб",
+    ),
+    "семг": ("семга", "сёмга", "семги", "сёмги", "рыб"),
+    "кревет": ("креветка", "креветки", "креветок", "рыб"),
+    "тунец": ("тунец", "тунца", "рыб"),
+    "икр": ("икра", "икры", "тобико", "рыб"),
+    "тобико": ("тобико",),
+    "нори": ("нори",),
+    "васаб": ("васаби",),
+    "имбир": ("имбирь", "имбиря"),
+    "молок": (
+        "молоко", "молока", "молоком", "молочный", "молочная",
+        "молочное",
+    ),
+    "сметан": ("сметана", "сметаны", "сметаной"),
+    "кефир": ("кефир", "кефира"),
+    "овсян": ("овсяные", "овсяный", "овсяная", "овсяное", "овсянка"),
+    "хлоп": ("хлопья", "хлопьев"),
+    "киноа": ("киноа",),
+    "нут": ("нут", "нута"),
+    "авокадо": ("авокадо",),
+    "изюм": ("изюм", "изюма"),
+    "шампиньон": ("шампиньоны", "шампиньон"),
+    "гриб": ("грибы", "гриб", "грибов", "шампиньоны", "шампиньон"),
+    "вод": ("вода", "воды", "водой"),
+    "бульон": ("бульон", "бульона", "бульоном"),
+    "суп": ("суп", "супа"),
+    "борщ": ("борщ", "борща"),
+    "каш": ("каша", "каши", "кашу"),
+    "варень": ("варенье", "варенья", "конфитюр", "джем"),
+    "конфитюр": ("конфитюр",),
+    "джем": ("джем",),
+    "ягод": ("ягоды", "ягодный", "ягодная", "ягодное", "ягодные"),
+    "ананас": ("ананас", "ананасы", "ананасов"),
+    "оливк": ("оливки", "оливка", "оливок"),
+    "паст": ("паста",),
+    "спагетт": ("спагетти",),
+    "макарон": ("макароны",),
+    "лапш": ("лапша", "лапши"),
+    "удон": ("удон",),
+    "кунжут": ("кунжут", "кунжута"),
+    "соев": ("соевый", "соевая", "соевое"),
+    "начинк": ("начинка", "начинки"),
+}
+
+INGREDIENT_SYNONYMS: Dict[str, Tuple[str, ...]] = {}
+for _canonical, _variants in INGREDIENT_SYNONYM_GROUPS.items():
+    for _variant in _variants:
+        INGREDIENT_SYNONYMS.setdefault(_variant, ())
+        INGREDIENT_SYNONYMS[_variant] += (_canonical,)
+
+_RU_SUFFIXES = (
+    "иями", "ями", "ами", "ов", "ев", "ей", "ой", "ый", "ий",
+    "ая", "яя", "ое", "ее", "ые", "ие", "ах", "ях", "ом", "ем",
+    "ам", "ям", "ую", "юю", "у", "ю", "а", "я", "ы", "и", "е", "о",
+)
+
+
+@dataclass(frozen=True)
+class IngredientTokens:
+    """Нормализованное название ингредиента."""
+
+    all: frozenset
+    main: frozenset
+    head: frozenset
+
+
+def _stem_ru(word: str) -> str:
+    """Очень простой стеммер для русских существительных и прилагательных."""
+    for suffix in _RU_SUFFIXES:
+        if len(word) > len(suffix) + 3 and word.endswith(suffix):
+            return word[: -len(suffix)]
+    return word
+
+
+def _normalize_ingredient_words(text: str) -> Tuple[frozenset, frozenset]:
+    """Возвращает (все токены, головные токены) для фрагмента названия."""
+    text = unicodedata.normalize("NFKC", str(text)).strip().lower()
+    text = text.replace("ё", "е")
+    text = re.sub(r"[^a-zа-я0-9]+", " ", text)
+    tokens = set()
+    head: frozenset = frozenset()
+
+    for word in text.split():
+        if not word or word in INGREDIENT_NOISE or word.isdigit():
+            continue
+        forms = {word, _stem_ru(word)}
+        for form in list(forms):
+            for synonym in INGREDIENT_SYNONYMS.get(form, ()):
+                forms.add(synonym)
+        forms = {
+            form for form in forms
+            if form and form not in INGREDIENT_NOISE
+        }
+        if not forms:
+            continue
+        if not head:
+            head = frozenset(forms)
+        tokens.update(forms)
+
+    return frozenset(tokens), head
+
+
+def normalize_ingredient_name(name: str) -> IngredientTokens:
+    """Нормализует название, отделяя содержимое скобок от головной части."""
+    text = unicodedata.normalize("NFKC", str(name)).strip().lower()
+    text = text.replace("ё", "е")
+    parenthetical = re.findall(r"\(([^)]*)\)", text)
+    main_text = re.sub(r"\([^)]*\)", " ", text)
+
+    main, head = _normalize_ingredient_words(main_text)
+    extra = set()
+    for part in parenthetical:
+        part_tokens, _ = _normalize_ingredient_words(part)
+        extra.update(part_tokens)
+
+    return IngredientTokens(
+        all=main | frozenset(extra),
+        main=main,
+        head=head,
+    )
+
+
+def _head_is_generic(head: frozenset) -> bool:
+    """True, если все головные токены — родовые слова."""
+    return bool(head) and not (head - INGREDIENT_GENERIC_HEADS)
+
+
+def _ingredient_pair_score(
+    reference: IngredientTokens,
+    predicted: IngredientTokens,
+) -> Optional[int]:
+    """Оценка пары «эталонный ингредиент × компонент» или None.
+
+    Совпадение по скобкам допускается только тогда, когда хотя бы одно
+    головное слово родовое. Это не даёт «тесту» совпасть с «маслом» только
+    потому, что в описании масла упомянуто «в тесте».
+    """
+    shared_all = reference.all & predicted.all
+    if not shared_all:
+        return None
+
+    shared_main = reference.main & predicted.main
+    strong_main = shared_main - INGREDIENT_WEAK
+    strong_all = shared_all - INGREDIENT_WEAK
+
+    if not strong_all:
+        # Совпали только родовые слова. Это допустимо, если хотя бы одна
+        # сторона состоит только из родовых слов («сыр» vs «сыр моцарелла»).
+        if (reference.all - INGREDIENT_WEAK) and (
+            predicted.all - INGREDIENT_WEAK
+        ):
+            return None
+        return 1 + len(shared_all)
+
+    if not strong_main and not (
+        _head_is_generic(reference.head) or _head_is_generic(predicted.head)
+    ):
+        return None
+
+    head_shared = reference.head & predicted.head
+    return (
+        1
+        + 4 * len(strong_main)
+        + 2 * len(strong_all - strong_main)
+        + (2 if head_shared else 0)
+        + len(shared_all)
+    )
+
+
+def ingredient_weight_error(
+    reference_weight: Optional[float],
+    predicted_weight: Optional[float],
+) -> Optional[float]:
+    """Относительная ошибка веса, %; None, если веса неизвестны."""
+    if reference_weight is None or predicted_weight is None:
+        return None
+    return abs(predicted_weight - reference_weight) / max(
+        reference_weight, 1.0
+    ) * 100.0
+
+
+def match_ingredient_lists(
+    references: Sequence[Ingredient],
+    predictions: Sequence[Ingredient],
+    *,
+    weight_tolerance: Optional[float] = None,
+) -> dict:
+    """Оптимальное матчинг один-к-одному эталонных ингредиентов и компонентов.
+
+    Если weight_tolerance задан, пара дополнительно требует известных весов
+    и относительной ошибки веса <= weight_tolerance.
+    """
+    reference_tokens = [
+        normalize_ingredient_name(item.name) for item in references
+    ]
+    prediction_tokens = [
+        normalize_ingredient_name(item.name) for item in predictions
+    ]
+
+    candidates: Dict[Tuple[int, int], Tuple[int, Optional[float]]] = {}
+    for ref_index, (reference, ref_tokens) in enumerate(
+        zip(references, reference_tokens)
+    ):
+        for pred_index, (prediction, pred_tokens) in enumerate(
+            zip(predictions, prediction_tokens)
+        ):
+            score = _ingredient_pair_score(ref_tokens, pred_tokens)
+            if score is None:
+                continue
+            weight_error = ingredient_weight_error(
+                reference.weight_g, prediction.weight_g
+            )
+            if weight_tolerance is not None and (
+                weight_error is None or weight_error > weight_tolerance
+            ):
+                continue
+            candidates[(ref_index, pred_index)] = (score, weight_error)
+
+    n_references = len(references)
+    n_predictions = len(predictions)
+    pairs: Tuple[Tuple[int, int, int, Optional[float]], ...] = ()
+
+    if candidates:
+        @lru_cache(maxsize=None)
+        def solve(
+            ref_index: int,
+            used_predictions: int,
+        ) -> Tuple[int, int, float, Tuple[Tuple[int, int, int, Optional[float]], ...]]:
+            if ref_index == n_references:
+                return (0, 0, 0.0, ())
+
+            best = solve(ref_index + 1, used_predictions)
+
+            for pred_index in range(n_predictions):
+                bit = 1 << pred_index
+                if used_predictions & bit:
+                    continue
+                candidate = candidates.get((ref_index, pred_index))
+                if candidate is None:
+                    continue
+
+                score, weight_error = candidate
+                rest = solve(ref_index + 1, used_predictions | bit)
+                total = (
+                    rest[0] + 1,
+                    rest[1] + score,
+                    rest[2] + (weight_error or 0.0),
+                    ((ref_index, pred_index, score, weight_error),) + rest[3],
+                )
+                if (total[0], total[1], -total[2]) > (
+                    best[0], best[1], -best[2]
+                ):
+                    best = total
+
+            return best
+
+        _, _, _, pairs = solve(0, 0)
+
+    matches = []
+    for ref_index, pred_index, score, weight_error in pairs:
+        matches.append(
+            {
+                "reference": references[ref_index].name,
+                "predicted": predictions[pred_index].name,
+                "reference_weight_g": references[ref_index].weight_g,
+                "predicted_weight_g": predictions[pred_index].weight_g,
+                "weight_error_percent": rounded(weight_error),
+                "score": score,
+            }
+        )
+
+    matched_reference = {pair[0] for pair in pairs}
+    matched_predicted = {pair[1] for pair in pairs}
+    weight_errors = [
+        weight_error
+        for _, _, _, weight_error in pairs
+        if weight_error is not None
+    ]
+
+    if references:
+        recall = len(matches) / len(references) * 100.0
+    else:
+        recall = 100.0 if not predictions else 0.0
+
+    if predictions:
+        precision = len(matches) / len(predictions) * 100.0
+    else:
+        precision = 100.0 if not references else 0.0
+
+    f1 = (
+        2.0 * precision * recall / (precision + recall)
+        if precision + recall
+        else 0.0
+    )
+
+    return {
+        "matched": len(matches),
+        "reference_total": len(references),
+        "predicted_total": len(predictions),
+        "match_percent": rounded(recall),
+        "recall_percent": rounded(recall),
+        "precision_percent": rounded(precision),
+        "f1_percent": rounded(f1),
+        "weight_mae_percent": rounded(mean(weight_errors)),
+        "matches": matches,
+        "unmatched_reference": [
+            references[index].name
+            for index in range(len(references))
+            if index not in matched_reference
+        ],
+        "unmatched_predicted": [
+            predictions[index].name
+            for index in range(len(predictions))
+            if index not in matched_predicted
+        ],
+    }
+
+
+def ingredient_match_metrics(match: dict) -> dict:
+    """Компактная сводка по одному результату матчинга ингредиентов."""
+    keys = (
+        "matched",
+        "reference_total",
+        "predicted_total",
+        "match_percent",
+        "recall_percent",
+        "precision_percent",
+        "f1_percent",
+        "weight_mae_percent",
+    )
+    return {key: match[key] for key in keys}
+
+
+def extract_components(
+    prediction: Optional[Prediction],
+) -> Tuple[List[Ingredient], List[str]]:
+    """Извлекает components[] из предсказания, пропуская некорректные элементы."""
+    if prediction is None or not isinstance(prediction.data, dict):
+        return [], []
+
+    raw_components = prediction.data.get("components")
+    if not isinstance(raw_components, list):
+        return [], ["components: нет массива компонентов"]
+
+    components: List[Ingredient] = []
+    warnings: List[str] = []
+    for index, item in enumerate(raw_components, start=1):
+        if not isinstance(item, dict):
+            warnings.append(f"components[{index}]: элемент не объект")
+            continue
+        name = str(item.get("name") or "").strip()
+        if not name:
+            warnings.append(f"components[{index}]: пустое имя")
+            continue
+        weight = parse_number(item.get("weight_g"))
+        if weight is not None and weight < 0:
+            warnings.append(f"components[{index}]: отрицательный weight_g")
+            weight = None
+        components.append(Ingredient(name=name, weight_g=weight))
+
+    return components, warnings
+
+
+# ---------------------------------------------------------------------------
 # Загрузка каталога
 # ---------------------------------------------------------------------------
 
@@ -240,8 +800,24 @@ def load_catalog(path: Path) -> List[CatalogDish]:
         seen_ids.add(dish_id)
         seen_keys.add(key)
 
-        ingredients = item.get("ingredients")
-        n_ingredients = len(ingredients) if isinstance(ingredients, list) else 0
+        raw_ingredients = item.get("ingredients")
+        ingredients: List[Ingredient] = []
+        if isinstance(raw_ingredients, list):
+            for ingredient in raw_ingredients:
+                if not isinstance(ingredient, dict):
+                    continue
+                ingredient_name = str(ingredient.get("name") or "").strip()
+                if not ingredient_name:
+                    continue
+                ingredient_weight = parse_number(ingredient.get("weight_g"))
+                if ingredient_weight is not None and ingredient_weight < 0:
+                    ingredient_weight = None
+                ingredients.append(
+                    Ingredient(
+                        name=ingredient_name,
+                        weight_g=ingredient_weight,
+                    )
+                )
 
         dishes.append(
             CatalogDish(
@@ -249,7 +825,7 @@ def load_catalog(path: Path) -> List[CatalogDish]:
                 key=key,
                 name=str(item.get("name") or "").strip(),
                 total=values,
-                n_ingredients=n_ingredients,
+                ingredients=ingredients,
             )
         )
 
