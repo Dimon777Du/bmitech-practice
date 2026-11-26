@@ -400,6 +400,167 @@
     { "name": "Масло растительное", "weight_g": 10, "kcal": 88, "protein_g": 0, "fat_g": 10.0, "carbs_g": 0 },
     { "name": "Кунжут", "weight_g": 5, "kcal": 30, "protein_g": 1.0, "fat_g": 2.5, "carbs_g": 1.0 }
   ],
-  "allergens": ["глютен", "соя", "кунжут"]}
+  "allergens": ["глютен", "соя", "кунжут"]},
+{
+  "dish_id": "NUT-01-022",
+  "name": "Салат Цезарь",
+  "photo": "data/raw/dishes/dish_22.jpeg",
+  "source": {"menu": "Гастоном", "url": "https://www.gastronom.ru/recipe/23698/salat-cezar-s-kuricej", "retrieved_at": "2026-11-22"
+  },
+  "portion_g": 350,
+  "total": {
+    "kcal": 680,
+    "protein_g": 45.5,
+    "fat_g": 48.5,
+    "carbs_g": 32.5
+  },
+  "per_100g": {
+    "kcal": 194.3,
+    "protein_g": 13.0,
+    "fat_g": 13.9,
+    "carbs_g": 9.3
+  },
+  "ingredients": [
+    {
+      "name": "Куриное филе",
+      "weight_g": 250,
+      "kcal": 250,
+      "protein_g": 26.1,
+      "fat_g": 15.0,
+      "carbs_g": 0
+    },
+    {
+      "name": "Хлеб пшеничный",
+      "weight_g": 50,
+      "kcal": 150,
+      "protein_g": 4.0,
+      "fat_g": 1.0,
+      "carbs_g": 35.0
+    },
+    {
+      "name": "Яйцо перепелиное",
+      "weight_g": 50,
+      "kcal": 155,
+      "protein_g": 13.0,
+      "fat_g": 11.0,
+      "carbs_g": 0.5
+    },
+    {
+      "name": "Салат",
+      "weight_g": 37.5,
+      "kcal": 15,
+      "protein_g": 1.5,
+      "fat_g": 0.5,
+      "carbs_g": 5.0
+    },
+    {
+      "name": "Томат черри",
+      "weight_g": 50,
+      "kcal": 20,
+      "protein_g": 1.0,
+      "fat_g": 0.5,
+      "carbs_g": 10.0
+    },
+    {
+      "name": "Сыр Пармезан",
+      "weight_g": 37.5,
+      "kcal": 150,
+      "protein_g": 25.0,
+      "fat_g": 28.0,
+      "carbs_g": 0
+    },
+    {
+      "name": "Соус Цезарь",
+      "weight_g": 30,
+      "kcal": 90,
+      "protein_g": 1.0,
+      "fat_g": 9.0,
+      "carbs_g": 4.0
+    }
+  ],
+  "allergens": ["глютен"]
+},
+{
+  "dish_id": "NUT-01-023",
+  "name": "Паста Карбонара",
+  "photo": "data/raw/dishes/dish_23.jpeg",
+  "source": {
+    "menu": "Гастоном",
+    "url": "https://www.gastronom.ru/recipe/29857/klassicheskaja-karbonara",
+    "retrieved_at": "2026-11-22"
+  },
+  "portion_g": 255,
+  "total": {
+    "kcal": 898,
+    "protein_g": 33.5,
+    "fat_g": 65.8,
+    "carbs_g": 48.5
+  },
+  "per_100g": {
+    "kcal": 352,
+    "protein_g": 13.2,
+    "fat_g": 25.3,
+    "carbs_g": 23.8
+  },
+  "ingredients": [
+    {
+      "name": "Спагетти",
+      "weight_g": 125,
+      "kcal": 344,
+      "protein_g": 10.0,
+      "fat_g": 2.0,
+      "carbs_g": 71.5
+    },
+    {
+      "name": "Оливковое масло",
+      "weight_g": 15,
+      "kcal": 134.5,
+      "protein_g": 0,
+      "fat_g": 15.0,
+      "carbs_g": 0
+    },
+    {
+      "name": "Сырокопченый бекон или грудинка",
+      "weight_g": 75,
+      "kcal": 375,
+      "protein_g": 17.5,
+      "fat_g": 34.0,
+      "carbs_g": 0
+    },
+    {
+      "name": "Чеснок",
+      "weight_g": 5,
+      "kcal": 20,
+      "protein_g": 0.5,
+      "fat_g": 0.1,
+      "carbs_g": 9.5
+    },
+    {
+      "name": "Твердый сыр",
+      "weight_g": 25,
+      "kcal": 98,
+      "protein_g": 4.2,
+      "fat_g": 3.5,
+      "carbs_g": 0
+    },
+    {
+      "name": "Желтки",
+      "weight_g": 75,
+      "kcal": 268.5,
+      "protein_g": 12.0,
+      "fat_g": 24.0,
+      "carbs_g": 0
+    },
+    {
+      "name": "Соль, свежемолотый черный перец",
+      "weight_g": 5,
+      "kcal": 0,
+      "protein_g": 0,
+      "fat_g": 0,
+      "carbs_g": 0
+    }
+  ],
+  "allergens": ["глютен", "лактоза"]
+}
 
 ]
