@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head><meta charset="UTF-8"><title>Отчет NUT-01</title>
+<style>body{font-family:Arial;margin:40px;background:#f9f9f9}.card{background:#fff;padding:20px;margin-bottom:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)}table{width:100%;border-collapse:collapse}th,td{padding:10px;text-align:left;border-bottom:1px solid #ddd}th{background:#f2f2f2}.good{color:#27ae60;font-weight:bold}.bad{color:#e74c3c;font-weight:bold}</style></head>
+<body>
+<h1>Отчет NUT-01: Нутриентный анализ</h1>
+<p><b>Команда:</b> Gigital Коты</p>
+<p><b>Модель:</b> DeepSeek V4.1 Flash Free</p>
+<p><b>Дата:</b> 26.11.2026</p>
+<div class="card"><h2>1. Главные результаты</h2>
+<p>Обработано блюд: <b>23</b></p>
+<p>MAE по калориям: <span class="bad">19.73%</span> (порог ≤ 15%)</p>
+<p>Match по нутриентам: <span class="bad">60.87%</span> (порог ≥ 80%)</p></div>
+<div class="card"><h2>2. Детали по нутриентам</h2><table><tr><th>Нутриент</th><th>MAE %</th><th>Match %</th></tr><tr><td>Калории</td><td>12.70%</td><td>78.3%</td></tr><tr><td>Белки</td><td>20.27%</td><td>56.5%</td></tr><tr><td>Жиры</td><td>27.59%</td><td>52.2%</td></tr><tr><td>Углеводы</td><td>18.34%</td><td>56.5%</td></tr></table></div>
+<div class="card"><h2>3. Детали по блюдам</h2><table><tr><th>ID</th><th>Блюдо</th><th>MAE %</th><th>Match %</th></tr><tr><td>dish_01</td><td>Биг Спешиал ролл Три сыра</td><td>17.23%</td><td style="color:orange;font-weight:bold;">75%</td></tr><tr><td>dish_02</td><td>Чизбургер</td><td>12.48%</td><td style="color:orange;font-weight:bold;">75%</td></tr><tr><td>dish_03</td><td>Картофель фри (маленькая порция)</td><td>7.34%</td><td style="color:green;font-weight:bold;">100%</td></tr><tr><td>dish_04</td><td>Наггетсы (9 шт.)</td><td>11.01%</td><td style="color:green;font-weight:bold;">100%</td></tr><tr><td>dish_05</td><td>Пепперони (30 см, традиционное тесто)</td><td>6.54%</td><td style="color:green;font-weight:bold;">100%</td></tr><tr><td>dish_06</td><td>Гавайская (30 см, традиционное тесто)</td><td>18.23%</td><td style="color:orange;font-weight:bold;">50%</td></tr><tr><td>dish_07</td><td>Ветчина и грибы (30 см, традиционное тесто)</td><td>20.84%</td><td style="color:orange;font-weight:bold;">75%</td></tr><tr><td>dish_08</td><td>Терияки (30 см, традиционное тесто)</td><td>17.96%</td><td style="color:orange;font-weight:bold;">50%</td></tr><tr><td>dish_09</td><td>Греческий салат</td><td>4.32%</td><td style="color:green;font-weight:bold;">100%</td></tr><tr><td>dish_10</td><td>Боул с киноа и овощами</td><td>17.31%</td><td style="color:orange;font-weight:bold;">50%</td></tr><tr><td>dish_11</td><td>Овсяная каша с ягодами и маслом</td><td>26.43%</td><td style="color:orange;font-weight:bold;">50%</td></tr><tr><td>dish_12</td><td>Суп-борщ с говядиной</td><td>39.28%</td><td style="color:red;font-weight:bold;">25%</td></tr><tr><td>dish_13</td><td>Суши-сет (8 шт.)</td><td>36.62%</td><td style="color:red;font-weight:bold;">25%</td></tr><tr><td>dish_14</td><td>Плов с говядиной</td><td>5.70%</td><td style="color:orange;font-weight:bold;">75%</td></tr><tr><td>dish_15</td><td>Шаурма с курицей</td><td>9.46%</td><td style="color:orange;font-weight:bold;">75%</td></tr><tr><td>dish_16</td><td>Пицца Маргарита</td><td>10.49%</td><td style="color:green;font-weight:bold;">100%</td></tr><tr><td>dish_17</td><td>Хачапури по-аджарски</td><td>10.51%</td><td style="color:green;font-weight:bold;">100%</td></tr><tr><td>dish_18</td><td>Хинкали с говядиной-свининой</td><td>19.95%</td><td style="color:red;font-weight:bold;">25%</td></tr><tr><td>dish_19</td><td>Свиной шашлык</td><td>24.53%</td><td style="color:red;font-weight:bold;">25%</td></tr><tr><td>dish_20</td><td>Харчо</td><td>42.28%</td><td style="color:red;font-weight:bold;">25%</td></tr><tr><td>dish_21</td><td>Говядина с лапшой удон</td><td>36.92%</td><td style="color:red;font-weight:bold;">0%</td></tr><tr><td>dish_22</td><td>Салат Цезарь</td><td>20.94%</td><td style="color:orange;font-weight:bold;">75%</td></tr><tr><td>dish_23</td><td>Паста Карбонара</td><td>37.31%</td><td style="color:red;font-weight:bold;">25%</td></tr></table></div>
+<div class="card"><h2>4. Традиционный способ (без ИИ)</h2>
+<p>Вручную: определить состав → найти в справочнике → взвесить → суммировать. Время: 10-15 минут на блюдо.</p></div>
+<div class="card"><h2>5. Выводы</h2>
+<ul><li>Модель хорошо справляется с общей калорийностью (MAE 12.7%).</li>
+<li>Ошибки в жирах (MAE 27.6%) — сложно оценить масло и соус по фото.</li>
+<li>Match 60.87% ниже порога, нужна доработка скилла.</li>
+<li>Выборка: 23 блюда.</li></ul></div>
+<p style="font-size:12px;color:#7f8c8d">* Оценка носит информационный характер и не является медицинской рекомендацией.</p>
+</body></html>
