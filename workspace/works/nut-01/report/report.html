@@ -33,3 +33,12 @@
     </table>
     <img src="boxplot.png" alt="Сравнение ошибок по калориям" style="max-width: 100%; margin-top: 20px;">
 </div>
+<div class="card">
+    <h2>Тестирование моделей</h2>
+    <table>
+        <tr><th>Модель</th><th>Успешных JSON</th><th>Ошибок</th><th>Причина</th></tr>
+        <tr><td>DeepSeek V4.1 Flash Free</td><td>23/23 (100%)</td><td>0</td><td>Работает (видит фото)</td></tr>
+        <tr><td>Big Pickle</td><td>9/23 (39%)</td><td>14</td><td>Не видит фото (текстовая модель)</td></tr>
+        <tr><td>MiMo V2.6 Flash Free</td><td>0/23 (0%)</td><td>23</td><td>Не возвращает текст (не поддерживает vision)</td></tr>
+    </table>
+</div>
