@@ -72,11 +72,11 @@ import requests
 # tools/run_eval.py -> tools -> nut-01
 BASE_DIR = Path(__file__).resolve().parent.parent
 CATALOG_PATH = BASE_DIR / "food_catalog.json"
-DEFAULT_OUT_DIR = BASE_DIR / "out" / "runs" / "DeepSeek_v1"
+DEFAULT_OUT_DIR = BASE_DIR / "out" / "runs" / "BigPickle_v1"
 
 # Модель и провайдер в терминах OpenCode.
 PROVIDER_ID = "opencode"
-MODEL_ID = os.environ.get("OPENCODE_MODEL", "deepseek-v4.1-flash-free")
+MODEL_ID = os.environ.get("OPENCODE_MODEL", "big-pickle")
 
 # Схема S-01 из skill/SKILL.md: ровно эти поля должны быть в ответе.
 TOP_LEVEL_FIELDS = {"components", "kcal", "protein", "fat", "carbs", "confidence", "notes"}
