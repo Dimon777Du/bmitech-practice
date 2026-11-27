@@ -1,0 +1,118 @@
+{
+  "components": [
+    {
+      "name": "рис для суши",
+      "weight_g": 88,
+      "kcal": 114.4,
+      "protein": 2.2,
+      "fat": 0.2,
+      "carbs": 25.1
+    },
+    {
+      "name": "лосось",
+      "weight_g": 32,
+      "kcal": 66.6,
+      "protein": 6.4,
+      "fat": 4.2,
+      "carbs": 0
+    },
+    {
+      "name": "тунец",
+      "weight_g": 28,
+      "kcal": 36.4,
+      "protein": 7.3,
+      "fat": 0.8,
+      "carbs": 0
+    },
+    {
+      "name": "белая рыба",
+      "weight_g": 20,
+      "kcal": 20.0,
+      "protein": 4.0,
+      "fat": 0.4,
+      "carbs": 0
+    },
+    {
+      "name": "креветка",
+      "weight_g": 22,
+      "kcal": 21.8,
+      "protein": 5.3,
+      "fat": 0.1,
+      "carbs": 0
+    },
+    {
+      "name": "кальмар",
+      "weight_g": 18,
+      "kcal": 16.6,
+      "protein": 2.8,
+      "fat": 0.3,
+      "carbs": 0.6
+    },
+    {
+      "name": "тамаго",
+      "weight_g": 15,
+      "kcal": 23.1,
+      "protein": 1.5,
+      "fat": 1.5,
+      "carbs": 0.9
+    },
+    {
+      "name": "угорь",
+      "weight_g": 12,
+      "kcal": 34.2,
+      "protein": 2.8,
+      "fat": 2.3,
+      "carbs": 1.0
+    },
+    {
+      "name": "икра тобико",
+      "weight_g": 6,
+      "kcal": 8.4,
+      "protein": 1.3,
+      "fat": 0.4,
+      "carbs": 0.2
+    },
+    {
+      "name": "нори",
+      "weight_g": 3,
+      "kcal": 5.4,
+      "protein": 0.2,
+      "fat": 0.1,
+      "carbs": 0.1
+    },
+    {
+      "name": "огурец",
+      "weight_g": 10,
+      "kcal": 1.5,
+      "protein": 0.1,
+      "fat": 0.0,
+      "carbs": 0.4
+    },
+    {
+      "name": "маринованный имбирь",
+      "weight_g": 4,
+      "kcal": 0.8,
+      "protein": 0.0,
+      "fat": 0.0,
+      "carbs": 0.2
+    },
+    {
+      "name": "васаби",
+      "weight_g": 2,
+      "kcal": 2.2,
+      "protein": 0.1,
+      "fat": 0.0,
+      "carbs": 0.5
+    }
+  ],
+  "kcal": 351.4,
+  "protein": 34.0,
+  "fat": 10.3,
+  "carbs": 29.0,
+  "confidence": "medium",
+  "notes": [
+    "Смешанный суши-сет; веса компонентов оценены по фото.",
+    "Соевый соус и дополнительные соусы не учтены.",
+    "Количество риса и состав начинок могут отличаться от факта."
+  ]
+}

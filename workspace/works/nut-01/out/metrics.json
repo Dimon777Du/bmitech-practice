@@ -1,0 +1,1075 @@
+{
+  "meta": {
+    "generated_at": "2026-11-26T22:20:02+05:00",
+    "catalog": "/Users/dimon777du/bmitech-practice/workspace/works/nut-01/food_catalog.json",
+    "runs_dir": "/Users/dimon777du/bmitech-practice/workspace/works/nut-01/out/runs/DeepSeek_v1",
+    "output": "/Users/dimon777du/bmitech-practice/workspace/works/nut-01/out/metrics.json",
+    "model": "DeepSeek_v1",
+    "n_catalog_dishes": 23,
+    "n_prediction_files": 23,
+    "n_matched": 23,
+    "n_valid": 23,
+    "n_failed": 0,
+    "python_version": "3.13.7",
+    "definitions": {
+      "mae_percent": "|pred - true| / max(true, floor) * 100; MAE_i — среднее по 4 нутриентам; итог — среднее MAE_i по всем блюдам.",
+      "match_percent": "Доля пар «блюдо × нутриент» с ошибкой <= tolerance; итог — hits / (n_dishes * 4) * 100.",
+      "match_basis": "nutrient_pair_error <= tolerance",
+      "tolerance_percent": 20.0,
+      "floors": {
+        "kcal": 10.0,
+        "protein": 1.0,
+        "fat": 1.0,
+        "carbs": 1.0
+      },
+      "failed_dish_policy": "Нет валидного JSON или хотя бы одного из полей kcal/protein/fat/carbs -> MAE_i = 100 %, все hit = 0."
+    },
+    "warnings": []
+  },
+  "summary": {
+    "n_dishes": 23,
+    "n_valid": 23,
+    "n_failed": 0,
+    "pairs": 92,
+    "hits": 56,
+    "mae_percent": 19.7251,
+    "match_percent": 60.8696,
+    "mae_percent_valid": 19.7251,
+    "match_percent_valid": 60.8696,
+    "mae_threshold": 15.0,
+    "match_threshold": 80.0,
+    "mae_threshold_passed": false,
+    "match_threshold_passed": false
+  },
+  "nutrients": {
+    "kcal": {
+      "label": "Калории",
+      "unit": "ккал",
+      "floor": 10.0,
+      "n": 23,
+      "n_valid": 23,
+      "mae_percent": 12.7009,
+      "mae_percent_valid": 12.7009,
+      "match_percent": 78.2609,
+      "match_percent_valid": 78.2609,
+      "hits": 18,
+      "bias_percent": -1.4968,
+      "mean_reference": 673.95,
+      "mean_predicted": 643.86
+    },
+    "protein": {
+      "label": "Белки",
+      "unit": "г",
+      "floor": 1.0,
+      "n": 23,
+      "n_valid": 23,
+      "mae_percent": 20.2705,
+      "mae_percent_valid": 20.2705,
+      "match_percent": 56.5217,
+      "match_percent_valid": 56.5217,
+      "hits": 13,
+      "bias_percent": 2.9335,
+      "mean_reference": 30.1,
+      "mean_predicted": 31.28
+    },
+    "fat": {
+      "label": "Жиры",
+      "unit": "г",
+      "floor": 1.0,
+      "n": 23,
+      "n_valid": 23,
+      "mae_percent": 27.5926,
+      "mae_percent_valid": 27.5926,
+      "match_percent": 52.1739,
+      "match_percent_valid": 52.1739,
+      "hits": 12,
+      "bias_percent": 4.2716,
+      "mean_reference": 30.39,
+      "mean_predicted": 28.68
+    },
+    "carbs": {
+      "label": "Углеводы",
+      "unit": "г",
+      "floor": 1.0,
+      "n": 23,
+      "n_valid": 23,
+      "mae_percent": 18.3362,
+      "mae_percent_valid": 18.3362,
+      "match_percent": 56.5217,
+      "match_percent_valid": 56.5217,
+      "hits": 13,
+      "bias_percent": -1.8449,
+      "mean_reference": 69.29,
+      "mean_predicted": 63.19
+    }
+  },
+  "dishes": [
+    {
+      "dish_id": "NUT-01-001",
+      "dish_key": "dish_01",
+      "name": "Биг Спешиал ролл Три сыра",
+      "status": "ok",
+      "prediction_file": "dish_01.json",
+      "reference": {
+        "kcal": 548.0,
+        "protein": 30.0,
+        "fat": 33.0,
+        "carbs": 33.0
+      },
+      "predicted": {
+        "kcal": 639.0,
+        "protein": 33.6,
+        "fat": 39.2,
+        "carbs": 40.1
+      },
+      "errors_percent": {
+        "kcal": 16.6058,
+        "protein": 12.0,
+        "fat": 18.7879,
+        "carbs": 21.5152
+      },
+      "signed_errors_percent": {
+        "kcal": 16.6058,
+        "protein": 12.0,
+        "fat": 18.7879,
+        "carbs": 21.5152
+      },
+      "mae_percent": 17.2272,
+      "hits": {
+        "kcal": true,
+        "protein": true,
+        "fat": true,
+        "carbs": false
+      },
+      "match_percent": 75.0,
+      "reference_ingredients": 11,
+      "predicted_components": 7,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-002",
+      "dish_key": "dish_02",
+      "name": "Чизбургер",
+      "status": "ok",
+      "prediction_file": "dish_02.json",
+      "reference": {
+        "kcal": 291.0,
+        "protein": 14.0,
+        "fat": 11.0,
+        "carbs": 33.0
+      },
+      "predicted": {
+        "kcal": 281.0,
+        "protein": 16.9,
+        "fat": 11.8,
+        "carbs": 26.9
+      },
+      "errors_percent": {
+        "kcal": 3.4364,
+        "protein": 20.7143,
+        "fat": 7.2727,
+        "carbs": 18.4848
+      },
+      "signed_errors_percent": {
+        "kcal": -3.4364,
+        "protein": 20.7143,
+        "fat": 7.2727,
+        "carbs": -18.4848
+      },
+      "mae_percent": 12.4771,
+      "hits": {
+        "kcal": true,
+        "protein": false,
+        "fat": true,
+        "carbs": true
+      },
+      "match_percent": 75.0,
+      "reference_ingredients": 8,
+      "predicted_components": 6,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-003",
+      "dish_key": "dish_03",
+      "name": "Картофель фри (маленькая порция)",
+      "status": "ok",
+      "prediction_file": "dish_03.json",
+      "reference": {
+        "kcal": 220.0,
+        "protein": 2.6,
+        "fat": 10.0,
+        "carbs": 28.0
+      },
+      "predicted": {
+        "kcal": 234.0,
+        "protein": 2.6,
+        "fat": 11.3,
+        "carbs": 30.8
+      },
+      "errors_percent": {
+        "kcal": 6.3636,
+        "protein": 0.0,
+        "fat": 13.0,
+        "carbs": 10.0
+      },
+      "signed_errors_percent": {
+        "kcal": 6.3636,
+        "protein": 0.0,
+        "fat": 13.0,
+        "carbs": 10.0
+      },
+      "mae_percent": 7.3409,
+      "hits": {
+        "kcal": true,
+        "protein": true,
+        "fat": true,
+        "carbs": true
+      },
+      "match_percent": 100.0,
+      "reference_ingredients": 3,
+      "predicted_components": 2,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-004",
+      "dish_key": "dish_04",
+      "name": "Наггетсы (9 шт.)",
+      "status": "ok",
+      "prediction_file": "dish_04.json",
+      "reference": {
+        "kcal": 397.0,
+        "protein": 25.0,
+        "fat": 21.0,
+        "carbs": 28.0
+      },
+      "predicted": {
+        "kcal": 465.0,
+        "protein": 27.0,
+        "fat": 24.6,
+        "carbs": 27.5
+      },
+      "errors_percent": {
+        "kcal": 17.1285,
+        "protein": 8.0,
+        "fat": 17.1429,
+        "carbs": 1.7857
+      },
+      "signed_errors_percent": {
+        "kcal": 17.1285,
+        "protein": 8.0,
+        "fat": 17.1429,
+        "carbs": -1.7857
+      },
+      "mae_percent": 11.0143,
+      "hits": {
+        "kcal": true,
+        "protein": true,
+        "fat": true,
+        "carbs": true
+      },
+      "match_percent": 100.0,
+      "reference_ingredients": 5,
+      "predicted_components": 3,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-005",
+      "dish_key": "dish_05",
+      "name": "Пепперони (30 см, традиционное тесто)",
+      "status": "ok",
+      "prediction_file": "dish_05.json",
+      "reference": {
+        "kcal": 1561.5,
+        "protein": 63.3,
+        "fat": 62.7,
+        "carbs": 175.5
+      },
+      "predicted": {
+        "kcal": 1464.0,
+        "protein": 67.5,
+        "fat": 63.5,
+        "carbs": 154.4
+      },
+      "errors_percent": {
+        "kcal": 6.244,
+        "protein": 6.6351,
+        "fat": 1.2759,
+        "carbs": 12.0228
+      },
+      "signed_errors_percent": {
+        "kcal": -6.244,
+        "protein": 6.6351,
+        "fat": 1.2759,
+        "carbs": -12.0228
+      },
+      "mae_percent": 6.5444,
+      "hits": {
+        "kcal": true,
+        "protein": true,
+        "fat": true,
+        "carbs": true
+      },
+      "match_percent": 100.0,
+      "reference_ingredients": 4,
+      "predicted_components": 4,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-006",
+      "dish_key": "dish_06",
+      "name": "Гавайская (30 см, традиционное тесто)",
+      "status": "ok",
+      "prediction_file": "dish_06.json",
+      "reference": {
+        "kcal": 1456.1,
+        "protein": 60.2,
+        "fat": 45.4,
+        "carbs": 191.2
+      },
+      "predicted": {
+        "kcal": 1406.0,
+        "protein": 79.1,
+        "fat": 53.1,
+        "carbs": 150.8
+      },
+      "errors_percent": {
+        "kcal": 3.4407,
+        "protein": 31.3953,
+        "fat": 16.9604,
+        "carbs": 21.1297
+      },
+      "signed_errors_percent": {
+        "kcal": -3.4407,
+        "protein": 31.3953,
+        "fat": 16.9604,
+        "carbs": -21.1297
+      },
+      "mae_percent": 18.2315,
+      "hits": {
+        "kcal": true,
+        "protein": false,
+        "fat": true,
+        "carbs": false
+      },
+      "match_percent": 50.0,
+      "reference_ingredients": 5,
+      "predicted_components": 6,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-007",
+      "dish_key": "dish_07",
+      "name": "Ветчина и грибы (30 см, традиционное тесто)",
+      "status": "ok",
+      "prediction_file": "dish_07.json",
+      "reference": {
+        "kcal": 1443.7,
+        "protein": 69.6,
+        "fat": 47.2,
+        "carbs": 175.2
+      },
+      "predicted": {
+        "kcal": 1557.0,
+        "protein": 63.5,
+        "fat": 73.1,
+        "carbs": 154.4
+      },
+      "errors_percent": {
+        "kcal": 7.8479,
+        "protein": 8.7644,
+        "fat": 54.8729,
+        "carbs": 11.8721
+      },
+      "signed_errors_percent": {
+        "kcal": 7.8479,
+        "protein": -8.7644,
+        "fat": 54.8729,
+        "carbs": -11.8721
+      },
+      "mae_percent": 20.8393,
+      "hits": {
+        "kcal": true,
+        "protein": true,
+        "fat": false,
+        "carbs": true
+      },
+      "match_percent": 75.0,
+      "reference_ingredients": 5,
+      "predicted_components": 6,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-008",
+      "dish_key": "dish_08",
+      "name": "Терияки (30 см, традиционное тесто)",
+      "status": "ok",
+      "prediction_file": "dish_08.json",
+      "reference": {
+        "kcal": 1369.5,
+        "protein": 54.1,
+        "fat": 45.6,
+        "carbs": 186.0
+      },
+      "predicted": {
+        "kcal": 1204.0,
+        "protein": 66.6,
+        "fat": 41.3,
+        "carbs": 135.4
+      },
+      "errors_percent": {
+        "kcal": 12.0847,
+        "protein": 23.1054,
+        "fat": 9.4298,
+        "carbs": 27.2043
+      },
+      "signed_errors_percent": {
+        "kcal": -12.0847,
+        "protein": 23.1054,
+        "fat": -9.4298,
+        "carbs": -27.2043
+      },
+      "mae_percent": 17.956,
+      "hits": {
+        "kcal": true,
+        "protein": false,
+        "fat": true,
+        "carbs": false
+      },
+      "match_percent": 50.0,
+      "reference_ingredients": 7,
+      "predicted_components": 8,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-009",
+      "dish_key": "dish_09",
+      "name": "Греческий салат",
+      "status": "ok",
+      "prediction_file": "dish_09.json",
+      "reference": {
+        "kcal": 320.0,
+        "protein": 11.0,
+        "fat": 25.0,
+        "carbs": 12.0
+      },
+      "predicted": {
+        "kcal": 304.0,
+        "protein": 10.1,
+        "fat": 25.4,
+        "carbs": 11.7
+      },
+      "errors_percent": {
+        "kcal": 5.0,
+        "protein": 8.1818,
+        "fat": 1.6,
+        "carbs": 2.5
+      },
+      "signed_errors_percent": {
+        "kcal": -5.0,
+        "protein": -8.1818,
+        "fat": 1.6,
+        "carbs": -2.5
+      },
+      "mae_percent": 4.3205,
+      "hits": {
+        "kcal": true,
+        "protein": true,
+        "fat": true,
+        "carbs": true
+      },
+      "match_percent": 100.0,
+      "reference_ingredients": 5,
+      "predicted_components": 8,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-010",
+      "dish_key": "dish_10",
+      "name": "Боул с киноа и овощами",
+      "status": "ok",
+      "prediction_file": "dish_10.json",
+      "reference": {
+        "kcal": 480.0,
+        "protein": 21.0,
+        "fat": 16.0,
+        "carbs": 62.0
+      },
+      "predicted": {
+        "kcal": 482.0,
+        "protein": 21.7,
+        "fat": 23.1,
+        "carbs": 48.9
+      },
+      "errors_percent": {
+        "kcal": 0.4167,
+        "protein": 3.3333,
+        "fat": 44.375,
+        "carbs": 21.129
+      },
+      "signed_errors_percent": {
+        "kcal": 0.4167,
+        "protein": 3.3333,
+        "fat": 44.375,
+        "carbs": -21.129
+      },
+      "mae_percent": 17.3135,
+      "hits": {
+        "kcal": true,
+        "protein": true,
+        "fat": false,
+        "carbs": false
+      },
+      "match_percent": 50.0,
+      "reference_ingredients": 5,
+      "predicted_components": 11,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-011",
+      "dish_key": "dish_11",
+      "name": "Овсяная каша с ягодами и маслом",
+      "status": "ok",
+      "prediction_file": "dish_11.json",
+      "reference": {
+        "kcal": 380.0,
+        "protein": 12.0,
+        "fat": 14.0,
+        "carbs": 52.0
+      },
+      "predicted": {
+        "kcal": 409.0,
+        "protein": 9.7,
+        "fat": 8.2,
+        "carbs": 71.5
+      },
+      "errors_percent": {
+        "kcal": 7.6316,
+        "protein": 19.1667,
+        "fat": 41.4286,
+        "carbs": 37.5
+      },
+      "signed_errors_percent": {
+        "kcal": 7.6316,
+        "protein": -19.1667,
+        "fat": -41.4286,
+        "carbs": 37.5
+      },
+      "mae_percent": 26.4317,
+      "hits": {
+        "kcal": true,
+        "protein": true,
+        "fat": false,
+        "carbs": false
+      },
+      "match_percent": 50.0,
+      "reference_ingredients": 5,
+      "predicted_components": 2,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-012",
+      "dish_key": "dish_12",
+      "name": "Суп-борщ с говядиной",
+      "status": "ok",
+      "prediction_file": "dish_12.json",
+      "reference": {
+        "kcal": 290.0,
+        "protein": 14.0,
+        "fat": 12.0,
+        "carbs": 30.0
+      },
+      "predicted": {
+        "kcal": 310.0,
+        "protein": 6.5,
+        "fat": 20.8,
+        "carbs": 23.0
+      },
+      "errors_percent": {
+        "kcal": 6.8966,
+        "protein": 53.5714,
+        "fat": 73.3333,
+        "carbs": 23.3333
+      },
+      "signed_errors_percent": {
+        "kcal": 6.8966,
+        "protein": -53.5714,
+        "fat": 73.3333,
+        "carbs": -23.3333
+      },
+      "mae_percent": 39.2837,
+      "hits": {
+        "kcal": true,
+        "protein": false,
+        "fat": false,
+        "carbs": false
+      },
+      "match_percent": 25.0,
+      "reference_ingredients": 5,
+      "predicted_components": 3,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-013",
+      "dish_key": "dish_13",
+      "name": "Суши-сет (8 шт.)",
+      "status": "ok",
+      "prediction_file": "dish_13.json",
+      "reference": {
+        "kcal": 440.0,
+        "protein": 22.0,
+        "fat": 9.0,
+        "carbs": 68.0
+      },
+      "predicted": {
+        "kcal": 351.4,
+        "protein": 34.0,
+        "fat": 10.3,
+        "carbs": 29.0
+      },
+      "errors_percent": {
+        "kcal": 20.1364,
+        "protein": 54.5455,
+        "fat": 14.4444,
+        "carbs": 57.3529
+      },
+      "signed_errors_percent": {
+        "kcal": -20.1364,
+        "protein": 54.5455,
+        "fat": 14.4444,
+        "carbs": -57.3529
+      },
+      "mae_percent": 36.6198,
+      "hits": {
+        "kcal": false,
+        "protein": false,
+        "fat": true,
+        "carbs": false
+      },
+      "match_percent": 25.0,
+      "reference_ingredients": 5,
+      "predicted_components": 13,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-014",
+      "dish_key": "dish_14",
+      "name": "Плов с говядиной",
+      "status": "ok",
+      "prediction_file": "dish_14.json",
+      "reference": {
+        "kcal": 620.0,
+        "protein": 24.0,
+        "fat": 24.0,
+        "carbs": 78.0
+      },
+      "predicted": {
+        "kcal": 616.5,
+        "protein": 19.2,
+        "fat": 23.8,
+        "carbs": 79.1
+      },
+      "errors_percent": {
+        "kcal": 0.5645,
+        "protein": 20.0,
+        "fat": 0.8333,
+        "carbs": 1.4103
+      },
+      "signed_errors_percent": {
+        "kcal": -0.5645,
+        "protein": -20.0,
+        "fat": -0.8333,
+        "carbs": 1.4103
+      },
+      "mae_percent": 5.702,
+      "hits": {
+        "kcal": true,
+        "protein": false,
+        "fat": true,
+        "carbs": true
+      },
+      "match_percent": 75.0,
+      "reference_ingredients": 5,
+      "predicted_components": 6,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-015",
+      "dish_key": "dish_15",
+      "name": "Шаурма с курицей",
+      "status": "ok",
+      "prediction_file": "dish_15.json",
+      "reference": {
+        "kcal": 690.0,
+        "protein": 38.0,
+        "fat": 31.0,
+        "carbs": 62.0
+      },
+      "predicted": {
+        "kcal": 624.0,
+        "protein": 39.8,
+        "fat": 24.1,
+        "carbs": 62.8
+      },
+      "errors_percent": {
+        "kcal": 9.5652,
+        "protein": 4.7368,
+        "fat": 22.2581,
+        "carbs": 1.2903
+      },
+      "signed_errors_percent": {
+        "kcal": -9.5652,
+        "protein": 4.7368,
+        "fat": -22.2581,
+        "carbs": 1.2903
+      },
+      "mae_percent": 9.4626,
+      "hits": {
+        "kcal": true,
+        "protein": true,
+        "fat": false,
+        "carbs": true
+      },
+      "match_percent": 75.0,
+      "reference_ingredients": 5,
+      "predicted_components": 5,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-016",
+      "dish_key": "dish_16",
+      "name": "Пицца Маргарита",
+      "status": "ok",
+      "prediction_file": "dish_16.json",
+      "reference": {
+        "kcal": 850.0,
+        "protein": 34.0,
+        "fat": 30.0,
+        "carbs": 110.0
+      },
+      "predicted": {
+        "kcal": 876.0,
+        "protein": 32.0,
+        "fat": 25.0,
+        "carbs": 128.0
+      },
+      "errors_percent": {
+        "kcal": 3.0588,
+        "protein": 5.8824,
+        "fat": 16.6667,
+        "carbs": 16.3636
+      },
+      "signed_errors_percent": {
+        "kcal": 3.0588,
+        "protein": -5.8824,
+        "fat": -16.6667,
+        "carbs": 16.3636
+      },
+      "mae_percent": 10.4929,
+      "hits": {
+        "kcal": true,
+        "protein": true,
+        "fat": true,
+        "carbs": true
+      },
+      "match_percent": 100.0,
+      "reference_ingredients": 5,
+      "predicted_components": 5,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-017",
+      "dish_key": "dish_17",
+      "name": "Хачапури по-аджарски",
+      "status": "ok",
+      "prediction_file": "dish_17.json",
+      "reference": {
+        "kcal": 620.0,
+        "protein": 29.3,
+        "fat": 31.8,
+        "carbs": 54.5
+      },
+      "predicted": {
+        "kcal": 690.0,
+        "protein": 33.9,
+        "fat": 36.0,
+        "carbs": 53.5
+      },
+      "errors_percent": {
+        "kcal": 11.2903,
+        "protein": 15.6997,
+        "fat": 13.2075,
+        "carbs": 1.8349
+      },
+      "signed_errors_percent": {
+        "kcal": 11.2903,
+        "protein": 15.6997,
+        "fat": 13.2075,
+        "carbs": -1.8349
+      },
+      "mae_percent": 10.5081,
+      "hits": {
+        "kcal": true,
+        "protein": true,
+        "fat": true,
+        "carbs": true
+      },
+      "match_percent": 100.0,
+      "reference_ingredients": 5,
+      "predicted_components": 4,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-018",
+      "dish_key": "dish_18",
+      "name": "Хинкали с говядиной-свининой",
+      "status": "ok",
+      "prediction_file": "dish_18.json",
+      "reference": {
+        "kcal": 157.0,
+        "protein": 6.9,
+        "fat": 3.9,
+        "carbs": 23.7
+      },
+      "predicted": {
+        "kcal": 199.0,
+        "protein": 6.9,
+        "fat": 4.8,
+        "carbs": 30.8
+      },
+      "errors_percent": {
+        "kcal": 26.7516,
+        "protein": 0.0,
+        "fat": 23.0769,
+        "carbs": 29.9578
+      },
+      "signed_errors_percent": {
+        "kcal": 26.7516,
+        "protein": 0.0,
+        "fat": 23.0769,
+        "carbs": 29.9578
+      },
+      "mae_percent": 19.9466,
+      "hits": {
+        "kcal": false,
+        "protein": true,
+        "fat": false,
+        "carbs": false
+      },
+      "match_percent": 25.0,
+      "reference_ingredients": 3,
+      "predicted_components": 2,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-019",
+      "dish_key": "dish_19",
+      "name": "Свиной шашлык",
+      "status": "ok",
+      "prediction_file": "dish_19.json",
+      "reference": {
+        "kcal": 599.0,
+        "protein": 23.9,
+        "fat": 54.2,
+        "carbs": 3.8
+      },
+      "predicted": {
+        "kcal": 502.0,
+        "protein": 29.9,
+        "fat": 39.1,
+        "carbs": 4.9
+      },
+      "errors_percent": {
+        "kcal": 16.1937,
+        "protein": 25.1046,
+        "fat": 27.8598,
+        "carbs": 28.9474
+      },
+      "signed_errors_percent": {
+        "kcal": -16.1937,
+        "protein": 25.1046,
+        "fat": -27.8598,
+        "carbs": 28.9474
+      },
+      "mae_percent": 24.5264,
+      "hits": {
+        "kcal": true,
+        "protein": false,
+        "fat": false,
+        "carbs": false
+      },
+      "match_percent": 25.0,
+      "reference_ingredients": 4,
+      "predicted_components": 4,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-020",
+      "dish_key": "dish_20",
+      "name": "Харчо",
+      "status": "ok",
+      "prediction_file": "dish_20.json",
+      "reference": {
+        "kcal": 486.0,
+        "protein": 20.3,
+        "fat": 15.8,
+        "carbs": 64.8
+      },
+      "predicted": {
+        "kcal": 606.8,
+        "protein": 32.8,
+        "fat": 26.4,
+        "carbs": 54.7
+      },
+      "errors_percent": {
+        "kcal": 24.856,
+        "protein": 61.5764,
+        "fat": 67.0886,
+        "carbs": 15.5864
+      },
+      "signed_errors_percent": {
+        "kcal": 24.856,
+        "protein": 61.5764,
+        "fat": 67.0886,
+        "carbs": -15.5864
+      },
+      "mae_percent": 42.2768,
+      "hits": {
+        "kcal": false,
+        "protein": false,
+        "fat": false,
+        "carbs": true
+      },
+      "match_percent": 25.0,
+      "reference_ingredients": 6,
+      "predicted_components": 4,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-021",
+      "dish_key": "dish_21",
+      "name": "Говядина с лапшой удон",
+      "status": "ok",
+      "prediction_file": "dish_21.json",
+      "reference": {
+        "kcal": 704.0,
+        "protein": 38.0,
+        "fat": 42.0,
+        "carbs": 42.0
+      },
+      "predicted": {
+        "kcal": 556.0,
+        "protein": 21.9,
+        "fat": 24.0,
+        "carbs": 59.4
+      },
+      "errors_percent": {
+        "kcal": 21.0227,
+        "protein": 42.3684,
+        "fat": 42.8571,
+        "carbs": 41.4286
+      },
+      "signed_errors_percent": {
+        "kcal": -21.0227,
+        "protein": -42.3684,
+        "fat": -42.8571,
+        "carbs": 41.4286
+      },
+      "mae_percent": 36.9192,
+      "hits": {
+        "kcal": false,
+        "protein": false,
+        "fat": false,
+        "carbs": false
+      },
+      "match_percent": 0.0,
+      "reference_ingredients": 6,
+      "predicted_components": 7,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-022",
+      "dish_key": "dish_22",
+      "name": "Салат Цезарь",
+      "status": "ok",
+      "prediction_file": "dish_22.json",
+      "reference": {
+        "kcal": 680.0,
+        "protein": 45.5,
+        "fat": 48.5,
+        "carbs": 32.5
+      },
+      "predicted": {
+        "kcal": 546.0,
+        "protein": 42.4,
+        "fat": 29.4,
+        "carbs": 26.7
+      },
+      "errors_percent": {
+        "kcal": 19.7059,
+        "protein": 6.8132,
+        "fat": 39.3814,
+        "carbs": 17.8462
+      },
+      "signed_errors_percent": {
+        "kcal": -19.7059,
+        "protein": -6.8132,
+        "fat": -39.3814,
+        "carbs": -17.8462
+      },
+      "mae_percent": 20.9367,
+      "hits": {
+        "kcal": true,
+        "protein": true,
+        "fat": false,
+        "carbs": true
+      },
+      "match_percent": 75.0,
+      "reference_ingredients": 7,
+      "predicted_components": 9,
+      "warnings": []
+    },
+    {
+      "dish_id": "NUT-01-023",
+      "dish_key": "dish_23",
+      "name": "Паста Карбонара",
+      "status": "ok",
+      "prediction_file": "dish_23.json",
+      "reference": {
+        "kcal": 898.0,
+        "protein": 33.5,
+        "fat": 65.8,
+        "carbs": 48.5
+      },
+      "predicted": {
+        "kcal": 486.0,
+        "protein": 21.9,
+        "fat": 21.4,
+        "carbs": 49.1
+      },
+      "errors_percent": {
+        "kcal": 45.8797,
+        "protein": 34.6269,
+        "fat": 67.4772,
+        "carbs": 1.2371
+      },
+      "signed_errors_percent": {
+        "kcal": -45.8797,
+        "protein": -34.6269,
+        "fat": -67.4772,
+        "carbs": 1.2371
+      },
+      "mae_percent": 37.3052,
+      "hits": {
+        "kcal": false,
+        "protein": false,
+        "fat": false,
+        "carbs": true
+      },
+      "match_percent": 25.0,
+      "reference_ingredients": 7,
+      "predicted_components": 6,
+      "warnings": []
+    }
+  ],
+  "failed_dishes": []
+}
